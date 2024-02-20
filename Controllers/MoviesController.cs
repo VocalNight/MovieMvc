@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +7,16 @@ using MovieMvc.Models;
 
 namespace MovieMvc.Controllers
 {
+    [Authorize]
     public class MoviesController : Controller
     {
         private readonly MovieMvcContext _context;
+        private readonly ILogger<MoviesController> _logger;
 
-        public MoviesController(MovieMvcContext context)
+        public MoviesController(MovieMvcContext context, ILogger<MoviesController> logger )
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Movies
@@ -49,7 +49,7 @@ namespace MovieMvc.Controllers
                 Movies = await movies.ToListAsync()
             };
 
-
+            _logger.LogInformation("Movies page acessed without errors");
             return View(movieGenreVM);
         }
 

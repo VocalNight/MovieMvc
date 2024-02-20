@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MovieMvc.Data;
 
@@ -11,9 +12,11 @@ using MovieMvc.Data;
 namespace MovieMvc.Migrations
 {
     [DbContext(typeof(MovieMvcContext))]
-    partial class MovieMvcContextModelSnapshot : ModelSnapshot
+    [Migration("20240220183149_identity")]
+    partial class identity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
