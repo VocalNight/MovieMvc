@@ -5,15 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+using MovieMvc.Repositories;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MovieMvc.Areas.Identity.Pages.Account
 {
@@ -21,11 +18,13 @@ namespace MovieMvc.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly LogRepository _logDatabase;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, LogRepository logging )
         {
             _signInManager = signInManager;
             _logger = logger;
+            _logDatabase = logging;
         }
 
         /// <summary>
@@ -123,11 +122,13 @@ namespace MovieMvc.Areas.Identity.Pages.Account
                 }
                 if (result.IsLockedOut)
                 {
+                    _logDatabase.Log("Error", "User account locked out.");
                     _logger.LogWarning("User account locked out.");
                     return RedirectToPage("./Lockout");
                 }
                 else
                 {
+                    _logDatabase.Log("Error", "Invalid login attempt.");
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }

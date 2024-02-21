@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MovieMvc.Data;
 using MovieMvc.Models;
+using MovieMvc.Repositories;
 
 namespace MovieMvc.Controllers
 {
@@ -12,11 +13,13 @@ namespace MovieMvc.Controllers
     {
         private readonly MovieMvcContext _context;
         private readonly ILogger<MoviesController> _logger;
+        private readonly LogRepository _databaseLogging;
 
-        public MoviesController(MovieMvcContext context, ILogger<MoviesController> logger )
+        public MoviesController(MovieMvcContext context, ILogger<MoviesController> logger, LogRepository logging )
         {
             _context = context;
             _logger = logger;
+            _databaseLogging = logging;
         }
 
         // GET: Movies
@@ -24,6 +27,7 @@ namespace MovieMvc.Controllers
         {
             if (_context.Movie == null)
             {
+                _databaseLogging.Log("Error", "Entity set 'MvcMovieContext.Movie' is null.");
                 return Problem("Entity set 'MvcMovieContext.Movie' is null.");
             }
 
@@ -118,6 +122,7 @@ namespace MovieMvc.Controllers
         {
             if (id != movie.Id)
             {
+                _databaseLogging.Log("Error", $"movie with id {movie.Id} does not match {id}");
                 return NotFound();
             }
 
@@ -132,6 +137,7 @@ namespace MovieMvc.Controllers
                 {
                     if (!MovieExists(movie.Id))
                     {
+                        _databaseLogging.Log("Error", $"movie with id {movie.Id} was not found");
                         return NotFound();
                     }
                     else

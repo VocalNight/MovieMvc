@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using MovieMvc.Repositories;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MovieMvc.Areas.Identity.Pages.Account
 {
@@ -29,13 +31,15 @@ namespace MovieMvc.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly LogRepository _logDatabase;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            LogRepository logging)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +47,7 @@ namespace MovieMvc.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _logDatabase = logging;
         }
 
         /// <summary>
@@ -146,10 +151,11 @@ namespace MovieMvc.Areas.Identity.Pages.Account
                 }
                 foreach (var error in result.Errors)
                 {
+                    _logDatabase.Log("Error", error.Description);
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
-
+            _logDatabase.Log("Error", "Something went wrong, double check the form!");
             // If we got this far, something failed, redisplay form
             return Page();
         }
@@ -162,9 +168,12 @@ namespace MovieMvc.Areas.Identity.Pages.Account
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
+                var errorDescription = $"Can't create an instance of '{nameof(IdentityUser)}'. " +
                     $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml";
+
+                _logDatabase.Log("Error", errorDescription);
+                throw new InvalidOperationException(errorDescription);
             }
         }
 
@@ -172,7 +181,10 @@ namespace MovieMvc.Areas.Identity.Pages.Account
         {
             if (!_userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
+                var errorDescription = "The default UI requires a user store with email support.";
+
+                _logDatabase.Log("Error", errorDescription);
+                throw new NotSupportedException(errorDescription);
             }
             return (IUserEmailStore<IdentityUser>)_userStore;
         }

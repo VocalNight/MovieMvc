@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MovieMvc.Models;
 
 
 namespace MovieMvc.Data
@@ -11,6 +12,7 @@ namespace MovieMvc.Data
         {
         }
 
-        public DbSet<MovieMvc.Models.Movie> Movie { get; set; } = default!;
+        public DbSet<Movie> Movie { get; set; } = default!;
+        public DbSet<Logs> Logs { get; set; } = default!;
     }
 }

@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using MovieMvc.Data;
 using MovieMvc.Models;
 using Microsoft.AspNetCore.Identity;
+using MovieMvc.Repositories;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,14 +15,17 @@ builder.Services.AddDbContext<MovieMvcContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<MovieMvcContext>();
 
 // Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ILogs, LogRepository>();
+builder.Services.AddScoped<LogRepository>();
 
 
 var loggerFactory = LoggerFactory.Create(builder =>
 {
-    builder.AddConsole().AddDebug();
+    builder.AddConsole();
 
-    builder.SetMinimumLevel(LogLevel.None);
+    builder.SetMinimumLevel(LogLevel.Information);
 });
 
 var logger = loggerFactory.CreateLogger<MovieMvcContext>();
@@ -41,6 +46,14 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var db = scope.ServiceProvider.GetRequiredService<MovieMvcContext>();
+    db.Database.EnsureDeleted();
+
 }
 
 
